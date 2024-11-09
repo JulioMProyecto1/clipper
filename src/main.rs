@@ -13,7 +13,7 @@ fn main() -> eframe::Result {
         ..Default::default()
     };
     eframe::run_native(
-        "My egui App",
+        "Clipper",
         options,
         Box::new(|_| {
             // This gives us image support:
@@ -58,10 +58,19 @@ impl eframe::App for MyApp {
         // Sleep to avoid constant polling
         // thread::sleep(Duration::from_millis(500));
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("Clip Clipper");
-            for (index, text) in self.history.iter().enumerate().rev() {
-                ui.selectable_value(&mut self.id_selected, index.try_into().unwrap(), text);
-            }
+            ui.heading("Select your clip");
+            ui.add_space(3.0);
+            egui::ScrollArea::vertical().show(ui, |ui| {
+                for (index, text) in self.history.iter().enumerate().rev() {
+                    let selectable = ui.selectable_value(&mut self.id_selected, index, text);
+                    // Scroll to the selected item
+                    if self.id_selected == index {
+                        selectable.scroll_to_me(Some(egui::Align::Center));
+                    }
+
+                    ui.separator();
+                }
+            });
             if ctx.input(|i| i.key_pressed(Key::ArrowDown)) {
                 if self.id_selected > 0 {
                     self.id_selected = self.id_selected - 1;
