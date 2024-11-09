@@ -91,7 +91,7 @@ impl eframe::App for MyApp {
                 }
             }
             if self.show_notification {
-                ui.label(RichText::new("Text Copied!").color(Color32::GREEN));
+                ui.label(RichText::new("Text copied to clipboard!").color(Color32::GREEN));
 
                 // Hide notification after 3 seconds
                 if let Some(start) = self.notification_start {
