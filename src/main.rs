@@ -1,15 +1,16 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
 #![allow(rustdoc::missing_crate_level_docs)] // it's an example
 
-use eframe::egui;
+use eframe::egui::{ self, RichText };
 use egui::Key;
 use copypasta::{ ClipboardContext, ClipboardProvider };
 use std::time::{ Duration, Instant };
+use eframe::egui::Color32;
 
 fn main() -> eframe::Result {
     // env_logger::init(); // Log to stderr (if you run with `RUST_LOG=debug`).
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([320.0, 240.0]),
+        viewport: egui::ViewportBuilder::default().with_inner_size([320.0, 640.0]),
         ..Default::default()
     };
     eframe::run_native(
@@ -23,12 +24,13 @@ fn main() -> eframe::Result {
         })
     )
 }
-
 struct MyApp {
     id_selected: usize,
     history: Vec<String>,
     last_check: Instant, // Track the last time clipboard was checked
     previous_clip_content: String,
+    show_notification: bool,
+    notification_start: Option<Instant>,
 }
 
 impl Default for MyApp {
@@ -38,6 +40,8 @@ impl Default for MyApp {
             history: Vec::new(),
             last_check: Instant::now(), // Initialize with the current time
             previous_clip_content: String::new(),
+            show_notification: false,
+            notification_start: None,
         }
     }
 }
@@ -46,7 +50,6 @@ impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         let check_interval = Duration::from_millis(500);
         let mut clipboard = ClipboardContext::new().expect("Failed to initialize clipboard");
-        // let mut history = Vec::new();
         if self.last_check.elapsed() >= check_interval {
             self.last_check = Instant::now();
             let clip_content = clipboard.get_contents().unwrap();
@@ -55,8 +58,6 @@ impl eframe::App for MyApp {
                 self.previous_clip_content = clip_content;
             }
         }
-        // Sleep to avoid constant polling
-        // thread::sleep(Duration::from_millis(500));
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.heading("Select your clip");
             ui.add_space(3.0);
@@ -85,6 +86,18 @@ impl eframe::App for MyApp {
                 // println!("{}", self.id_selected);
                 if let Some(item) = self.history.get(self.id_selected) {
                     clipboard.set_contents(item.to_string()).unwrap();
+                    self.show_notification = true;
+                    self.notification_start = Some(Instant::now());
+                }
+            }
+            if self.show_notification {
+                ui.label(RichText::new("Text Copied!").color(Color32::GREEN));
+
+                // Hide notification after 3 seconds
+                if let Some(start) = self.notification_start {
+                    if start.elapsed() >= Duration::from_secs(2) {
+                        self.show_notification = false;
+                    }
                 }
             }
         });
