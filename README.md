@@ -14,3 +14,5 @@ TODO:
 - Save binaries
 - Minimize
 - Add shortcut to bring it to top
+
+![](https://github.com/JulioMProyecto1/clipper/blob/main/assets/recording_gif.gif)
