@@ -9,3 +9,8 @@ Features:
 - Keyboard Navigation: Use arrow keys to navigate the history and Enter to set the clipboard to the selected entry.
 
 This project demonstrates real-time clipboard monitoring and a responsive UI in Rust.
+
+TODO:
+- Save binaries
+- Minimize
+- Add shortcut to bring it to top
