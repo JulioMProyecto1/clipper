@@ -51,11 +51,16 @@ impl eframe::App for MyApp {
         let check_interval = Duration::from_millis(500);
         let mut clipboard = ClipboardContext::new().expect("Failed to initialize clipboard");
         if self.last_check.elapsed() >= check_interval {
-            self.last_check = Instant::now();
-            let clip_content = clipboard.get_contents().unwrap();
-            if clip_content != self.previous_clip_content && !self.history.contains(&clip_content) {
-                self.history.push(clip_content.clone());
-                self.previous_clip_content = clip_content;
+            if let Ok(_) = clipboard.get_contents() {
+                self.last_check = Instant::now();
+                let clip_content = clipboard.get_contents().unwrap();
+                if
+                    clip_content != self.previous_clip_content &&
+                    !self.history.contains(&clip_content)
+                {
+                    self.history.push(clip_content.clone());
+                    self.previous_clip_content = clip_content;
+                }
             }
         }
         egui::CentralPanel::default().show(ctx, |ui| {
